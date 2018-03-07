@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        #canvas {
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        // 0.定义一个取两个数之间的额随机数的方法
+        let newMath = (x, y) => {
+            let tmp = y -x;
+            return Math.floor(Math.random()*tmp + x);
+        }
+        //1.生成一个随机的色值
+        let randomRgbColor = () => { //随机生成RGB颜色
+            var r = Math.floor(Math.random() * 256); //随机生成256以内r值
+            var g = Math.floor(Math.random() * 256); //随机生成256以内g值
+            var b = Math.floor(Math.random() * 256); //随机生成256以内b值
+            return `rgba(${r},${g},${b},.5)`; //返回rgb(r,g,b,a)格式颜色
+        }
+        // 2.获取当前的画布
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 1000;
+        canvas.height = 600;
+        canvas.style.backgroundColor = '#000';
+        // 3.创建小球的类
+        class Ball{
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.r = 40;
+            }
+            render() {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.restore();
+            }
+
+        }
+       //4. 绘制移动的小球
+        class MoveBall extends Ball{
+            constructor(x, y, color) {
+                super(x, y, color);
+
+                this.dX = newMath(-5, 5);
+                this.dY = newMath(-5, 5);
+                this.dR = newMath(1, 3);
+            }
+            update() {
+                this.x += this.dX;
+                this.y += this.dY;
+                this.r -= this.dR;
+                if(this.r < 0) {
+                    this.r = 0;
+                }
+            }
+        }
+
+        //5.储存变化的小球
+
+        let ballArr = [];//用来保存我们的生成的小球；
+        //6.监听鼠标的移动
+
+        canvas.addEventListener('mousemove',function(e) {
+            ballArr.push(new MoveBall(e.offsetX, e.offsetY, randomRgbColor()));
+        })
+        //7. 开启定时器,并开始画图
+
+        setInterval(function() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for(let i = 0, l = ballArr.length; i < l; i++) {
+                ballArr[i].render();
+                ballArr[i].update();
+            }
+        },50)
+    </script>
+</body>
+</html>
